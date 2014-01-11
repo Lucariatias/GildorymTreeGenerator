@@ -52,6 +52,7 @@ public class PlayerInteractListener implements Listener {
 					Set<GildorymTreeBlock> blockSet = GildorymTree.scanTree(blocks, event.getClickedBlock().getWorld());
 					if (blockSet.isEmpty()) {
 						player.sendMessage(ChatColor.RED + "No tree found!");
+						player.sendMessage(ChatColor.RED + "Ensure that the base block is within the area!");
 					} else {
 						TreeData treeData = plugin.commandTreeDataMap.get(player.getName());
 						TreeSpecies treeSpecies = ((Tree) blocks[2].getState().getData()).getSpecies();
@@ -62,6 +63,14 @@ public class PlayerInteractListener implements Listener {
 							player.sendMessage(ChatColor.RED + "Error! Tree save failed! See console for details.");
 						} else { 
 							player.sendMessage(ChatColor.GREEN + "Success! Tree saved as " + fileName);
+							String treeName = fileName.split("\\.")[0];
+							if (plugin.getTreeMap().containsKey(treeName)) {
+								plugin.getTreeMap().remove(treeName);
+								player.sendMessage(ChatColor.GREEN + "Note: Overwrote tree with same name!");
+							}
+							plugin.getTreeMap().put(treeName, tree);
+							plugin.commandBlockMap.remove(player.getName());
+							plugin.commandTreeDataMap.remove(player.getName());
 						}
 					}
 				} else {

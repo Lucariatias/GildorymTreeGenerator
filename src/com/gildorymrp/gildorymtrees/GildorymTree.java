@@ -1,6 +1,5 @@
 package com.gildorymrp.gildorymtrees;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,6 +63,9 @@ public class GildorymTree {
 		int y = c_y;
 		
 		Set<GildorymTreeBlock> blockSet = new HashSet<GildorymTreeBlock>();
+		if (c_x < xmin || c_x > xmax || c_z < zmin || c_z > zmax) {
+			return blockSet;
+		}
 		boolean scanComplete = false;
 		
 		while (!scanComplete) {
@@ -105,7 +107,6 @@ public class GildorymTree {
 	TreeSpecies treeSpecies;
 	Set<GildorymTreeBlock> blockSet;
 	int height;
-	boolean valid;
 	
 	public GildorymTree(TreeGroup treeGroup, TreeRarity treeRarity, TreeSpecies treeSpecies, Set<GildorymTreeBlock> blockSet, int height) {
 		this.treeGroup = treeGroup;
@@ -113,11 +114,6 @@ public class GildorymTree {
 		this.treeSpecies = treeSpecies;
 		this.blockSet = blockSet;
 		this.height = height;
-		this.valid = true;
-	}
-	
-	public GildorymTree(File file) {
-		
 	}
 	
 	public GildorymTree(GildorymTree tree) {
@@ -126,7 +122,6 @@ public class GildorymTree {
 		this.treeSpecies = tree.getTreeSpecies();
 		this.blockSet = tree.getBlockSet();
 		this.height = tree.getHeight();
-		this.valid = tree.getValid();
 	}
 	
 	public Set<GildorymTreeBlock> getBlockSet() {
@@ -147,10 +142,6 @@ public class GildorymTree {
 	
 	public TreeSpecies getTreeSpecies() {
 		return treeSpecies;
-	}
-	
-	public boolean getValid() {
-		return valid;
 	}
 	
 	public void setBlockSet(Set<GildorymTreeBlock> blockSet) {
