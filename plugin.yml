@@ -1,7 +1,7 @@
 name: GildorymTrees
 author: Hohahihehu
 version: 0.0.1
-main: com.gildorymrp.gildorym.GildorymTrees
+main: com.gildorymrp.gildorymtrees.GildorymTreeGenerator
 commands:
     savetree:
         description: Allows a player to save an in-game tree for use in growth events

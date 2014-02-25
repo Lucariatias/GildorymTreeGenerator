@@ -24,7 +24,7 @@ public class PlayerInteractListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (!plugin.commandTreeDataMap.containsKey(event.getPlayer().getName())) {
 			return;
-		} else if (event.getItem().getType() != Material.AIR) {
+		} else if (event.getItem() != null) {
 			return;
 		} else if (event.getClickedBlock().getType() != Material.AIR) {
 			Player player = event.getPlayer();
@@ -38,8 +38,6 @@ public class PlayerInteractListener implements Listener {
 			if (blocks[0] == null) {
 				blocks[0] = event.getClickedBlock();
 				player.sendMessage(ChatColor.GREEN + "Right-click the second corner block of the boundary with an empty hand.");
-				player.sendMessage(ChatColor.GREEN + "Note: The height of the corner blocks doesn't matter, only horizonal position.");
-				player.sendMessage(ChatColor.GREEN + "Note: Any free leaves within the area will get copied with the tree!");
 			} else if (blocks[1] == null) {
 				blocks[1] = event.getClickedBlock();
 				player.sendMessage(ChatColor.GREEN + "Right-click the base block of the tree with an empty hand.");
@@ -47,12 +45,10 @@ public class PlayerInteractListener implements Listener {
 			} else if (blocks[2] == null) {
 				if (event.getClickedBlock().getType() == Material.LOG) {
 					blocks[2] = event.getClickedBlock();
-					player.sendMessage(ChatColor.GREEN + "All blocks selected!");
-					player.sendMessage(ChatColor.GREEN + "Processing tree...");
+					player.sendMessage(ChatColor.GREEN + "All blocks selected! Processing tree...");
 					Set<GildorymTreeBlock> blockSet = GildorymTree.scanTree(blocks, event.getClickedBlock().getWorld());
 					if (blockSet.isEmpty()) {
-						player.sendMessage(ChatColor.RED + "No tree found!");
-						player.sendMessage(ChatColor.RED + "Ensure that the base block is within the area!");
+						player.sendMessage(ChatColor.RED + "No tree found! Ensure that the base block is within the area!");
 					} else {
 						TreeData treeData = plugin.commandTreeDataMap.get(player.getName());
 						TreeSpecies treeSpecies = ((Tree) blocks[2].getState().getData()).getSpecies();

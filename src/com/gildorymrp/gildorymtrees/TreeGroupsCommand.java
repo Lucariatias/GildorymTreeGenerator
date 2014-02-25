@@ -21,7 +21,7 @@ public class TreeGroupsCommand implements CommandExecutor {
 			treeRarities += rarity.toString() + " ";
 		}
 		sender.sendMessage(ChatColor.GREEN + treeRarities);
-		return false;
+		return true;
 	}
 
 }

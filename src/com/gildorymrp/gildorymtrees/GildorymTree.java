@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 public class GildorymTree {
 
@@ -87,6 +88,62 @@ public class GildorymTree {
 			} else {
 				scanComplete = true;
 			}
+		}
+		
+		return blockSet;
+	}
+	
+	static Set<GildorymTreeBlock> scanTree(Block[] selectedBlocks, World world, Player player) {
+		// DEBUG METHOD
+		//selectedBlocks[0]/[1]: Corner Blocks of Bounds
+		//selectedBlocks[2]: Sapling Block
+		int xmin = (int) Math.min(selectedBlocks[0].getX(), selectedBlocks[1].getX());
+		int xmax = (int) Math.max(selectedBlocks[0].getX(), selectedBlocks[1].getX());
+		int zmin = (int) Math.min(selectedBlocks[0].getZ(), selectedBlocks[1].getZ());
+		int zmax = (int) Math.max(selectedBlocks[0].getZ(), selectedBlocks[1].getZ());
+		int c_x = selectedBlocks[2].getX();
+		int c_y = selectedBlocks[2].getY();
+		int c_z = selectedBlocks[2].getZ();
+		int y = c_y;
+		
+		player.sendMessage("DEBUG: RANGE: (" + xmin + " " + zmin + ") - (" + xmax + " " + zmax + ")");
+		player.sendMessage("DEBUG: BASE: (" + c_x + " " + c_y + " " + c_z + ")");
+		
+		Set<GildorymTreeBlock> blockSet = new HashSet<GildorymTreeBlock>();
+		if (c_x < xmin || c_x > xmax || c_z < zmin || c_z > zmax) {
+			player.sendMessage("DEBUG: Invalid Range!");
+			return blockSet;
+		}
+		boolean scanComplete = false;
+		
+		while (!scanComplete) {
+			boolean foundTreeBlock = false;
+			for (int x = xmin; x <= xmax; x++) {
+				for (int z = zmin; z <= zmax; z++) {
+					Block block = world.getBlockAt(x, y, z);
+					player.sendMessage("==================================");
+					player.sendMessage("DEBUG: BLOCK: (" + x + " " + y + " " + z + ")");
+					player.sendMessage("DEBUG: OFFSET: (" + (x - c_x) + " " + (y - c_y) + " " + (z - c_z) + ")");
+					player.sendMessage("DEBUG: MATERIAL: " + block.getType());
+					if (block.getType() == Material.LOG || block.getType() == Material.LEAVES) {
+						foundTreeBlock = true;
+						GildorymTreeBlock treeBlock = new GildorymTreeBlock(x - c_x, y - c_y, z - c_z, block.getType());
+						player.sendMessage("DEBUG: TREEBLOCK: (" + treeBlock.getXOffset() + " " + treeBlock.getYOffset() + " " + treeBlock.getZOffset() + " " + treeBlock.getBlockType() + ")");
+						blockSet.add(treeBlock);
+					}
+				}
+			}
+			if (foundTreeBlock == true) {
+				y++;
+			} else {
+				scanComplete = true;
+				player.sendMessage("DEBUG: Scan complete.");
+			}
+		}
+		
+		player.sendMessage("DEBUG: BLOCKSET CONTENTS");
+		for (GildorymTreeBlock treeBlock : blockSet) {
+			player.sendMessage("DEBUG: TREEBLOCK: (" + treeBlock.getXOffset() + " " + treeBlock.getYOffset() + " " + treeBlock.getZOffset() + " " + treeBlock.getBlockType() + ")");
 		}
 		
 		return blockSet;

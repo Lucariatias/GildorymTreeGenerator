@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
+import org.bukkit.entity.Player;
 
 public class TreeDataManager {
 
@@ -46,10 +47,6 @@ public class TreeDataManager {
 			e.printStackTrace();
 		} 
 		return null;
-	}
-	
-	public static void LoadTrees(GildorymTreeGenerator plugin) {
-		
 	}
 	
 	public static String[] convertTreeToText(GildorymTree tree) {
@@ -131,14 +128,14 @@ public class TreeDataManager {
 							while (line != null) {
 								sb.append(line);
 								sb.append(",");
+								line = br.readLine();
 							}
 							if (sb.length() == 0) {
 								continue;
 							}
 							sb.setLength(sb.length() - 1);
 							String[] fileData = sb.toString().split(",");
-							GildorymTree tree;
-							tree = convertTextToTree(fileData);
+							GildorymTree tree = convertTextToTree(fileData);
 							if (tree != null) {
 								String treeName = fileName.split("\\.")[0];
 								plugin.getTreeMap().put(treeName, tree);
@@ -154,6 +151,103 @@ public class TreeDataManager {
 			e.printStackTrace();
 		}
 		return;
+	}
+
+	public static String saveTree(GildorymTreeGenerator plugin, GildorymTree tree, Player player) {
+		// DEBUG METHOD
+		try {
+			if (!plugin.getDataFolder().exists()) {
+				plugin.getDataFolder().mkdir();
+			}
+			String treeGroup = tree.getTreeGroup().name();
+			String treeRarity = tree.getTreeRarity().name();
+			int i = 1;
+			String baseFileName = treeGroup + "-" + treeRarity + "-";
+			String fileName = null;
+			File file;
+			do {
+				fileName = baseFileName + i + ".tree";
+				file = new File(plugin.getDataFolder().getAbsolutePath()
+						+ File.separator + fileName);
+				i++;
+			} while (file.exists());
+			file.createNewFile();
+			PrintWriter out = new PrintWriter(new FileWriter(file));
+			String[] fileData = convertTreeToText(tree, player);
+			for (int n = 0; n < fileData.length; n++) {
+				out.println(fileData[n]);
+			}
+			out.close();
+			
+			player.sendMessage("DEBUG: ATTEMPTING TO PARSE TREE");
+			// ATTEMPT TREE FILE PARSE BEGINS
+			int sindex = fileName.lastIndexOf('.');
+			if (sindex > 0) {
+				String extension = fileName.substring(sindex + 1);
+				if (extension.equalsIgnoreCase("tree")) {
+					player.sendMessage("DEBUG: Reading File...");
+					BufferedReader br = new BufferedReader(new FileReader(file));
+					StringBuilder sb = new StringBuilder();
+					String line = br.readLine();
+					player.sendMessage("DEBUG: Line: " + line);
+					while (line != null) {
+						sb.append(line);
+						sb.append(",");
+						line = br.readLine();
+						player.sendMessage("DEBUG: Line: " + line);
+					}
+					sb.setLength(sb.length() - 1);
+					String[] debugFileData = sb.toString().split(",");
+					player.sendMessage("DEBUG: Converting Text to Tree...");
+					GildorymTree debugTree = convertTextToTree(debugFileData);
+					player.sendMessage("DEBUG: PARSED TREE:");
+					player.sendMessage("TreeGroup: " + debugTree.treeGroup);
+					player.sendMessage("TreeRarity: " + debugTree.treeRarity);
+					player.sendMessage("TreeSpecies: " + debugTree.treeSpecies);
+					player.sendMessage("Height: " + debugTree.height);
+					Set<GildorymTreeBlock> debugBlockSet = debugTree.getBlockSet();
+					for (GildorymTreeBlock debugTreeBlock : debugBlockSet) {
+						player.sendMessage("BLOCK: (" + debugTreeBlock.getXOffset() + " " + debugTreeBlock.getYOffset() + " " + debugTreeBlock.getZOffset() + " " + debugTreeBlock.getBlockType() + ")");
+					}
+					br.close();
+				}
+			}
+			// ATTEMPT TREE FILE PARSE ENDS
+			
+			return fileName;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		return null;
+	}
+
+	private static String[] convertTreeToText(GildorymTree tree, Player player) {
+		//DEBUG METHOD
+		String treeGroup = tree.getTreeGroup().name();
+		String treeRarity = tree.getTreeRarity().name();
+		String treeSpecies = tree.getTreeSpecies().name();
+		String height = "" + tree.getHeight();
+		Set<GildorymTreeBlock> blockSet = tree.getBlockSet();
+		int blockCount = blockSet.size();
+		
+		String[] fileData = new String[4 + blockCount];
+		fileData[0] = treeGroup;
+		fileData[1] = treeRarity;
+		fileData[2] = treeSpecies;
+		fileData[3] = height;
+		int i = 4;
+		for (GildorymTreeBlock treeBlock : blockSet) {
+			fileData[i] = treeBlock.getXOffset() + " " + treeBlock.getYOffset() + " " + treeBlock.getZOffset() + " ";
+			if (treeBlock.getBlockType() == Material.LOG) {
+				fileData[i] = fileData[i] + "LOG";
+			} else {
+				fileData[i] = fileData[i] + "LEAVES";
+			}
+			i++;
+		}
+		return fileData;
 	}
 
 }
