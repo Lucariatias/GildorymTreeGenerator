@@ -19,14 +19,14 @@ public class GildorymTreeGenerator extends JavaPlugin {
 	public void onEnable() {
 		getCommand("savetree").setExecutor(new SaveTreeCommand(this));
 		getCommand("treegroups").setExecutor(new TreeGroupsCommand());
-		registerListeners(new Listener[] { new PlayerInteractListener(this) });
+		registerListeners(new PlayerInteractListener(this));
 	}
 	
 	public Map<String, GildorymTree> getTreeMap() {
 		return treeMap;
 	}
 		
-	private void registerListeners(Listener[] listeners) {
+	private void registerListeners(Listener... listeners) {
 		for (Listener listener : listeners)
 			getServer().getPluginManager().registerEvents(listener, this);
 	}
